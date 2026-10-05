@@ -1,0 +1,139 @@
+-- ==========================================
+-- DATABASE LOGIKA FUZZY
+-- TUGAS 2
+-- ==========================================
+
+CREATE DATABASE IF NOT EXISTS logika_fuzzy;
+
+USE logika_fuzzy;
+
+
+-- ==========================================
+-- 1. TABEL BAYI
+-- Titik trapesium: (0, 2, 3, 5)
+-- ==========================================
+
+CREATE TABLE bayi (
+    b_bawah DECIMAL(5,2) NOT NULL,
+    b_atas DECIMAL(5,2) NOT NULL,
+    fungsi VARCHAR(100) NOT NULL
+);
+
+INSERT INTO bayi (b_bawah, b_atas, fungsi)
+VALUES
+(0, 2, 'naik_bayi'),
+(2, 3, '1'),
+(3, 5, 'trapesium_down_bayi'),
+(5, 150, '0');
+
+
+-- ==========================================
+-- 2. TABEL ANAK
+-- Titik trapesium: (6, 8, 9, 11)
+-- ==========================================
+
+CREATE TABLE anak (
+    b_bawah DECIMAL(5,2) NOT NULL,
+    b_atas DECIMAL(5,2) NOT NULL,
+    fungsi VARCHAR(100) NOT NULL
+);
+
+INSERT INTO anak (b_bawah, b_atas, fungsi)
+VALUES
+(6, 8, 'naik_anak'),
+(8, 9, '1'),
+(9, 11, 'trapesium_down_anak'),
+(11, 150, '0');
+
+
+-- ==========================================
+-- 3. TABEL REMAJA
+-- Titik trapesium: (10, 14, 15, 19)
+-- ==========================================
+
+CREATE TABLE remaja (
+    b_bawah DECIMAL(5,2) NOT NULL,
+    b_atas DECIMAL(5,2) NOT NULL,
+    fungsi VARCHAR(100) NOT NULL
+);
+
+INSERT INTO remaja (b_bawah, b_atas, fungsi)
+VALUES
+(10, 14, 'naik_remaja'),
+(14, 15, '1'),
+(15, 19, 'trapesium_down_remaja'),
+(19, 150, '0');
+
+
+-- ==========================================
+-- 4. TABEL PEMUDA
+-- Titik trapesium: (15, 19, 20, 24)
+-- ==========================================
+
+CREATE TABLE pemuda (
+    b_bawah DECIMAL(5,2) NOT NULL,
+    b_atas DECIMAL(5,2) NOT NULL,
+    fungsi VARCHAR(100) NOT NULL
+);
+
+INSERT INTO pemuda (b_bawah, b_atas, fungsi)
+VALUES
+(15, 19, 'naik_pemuda'),
+(19, 20, '1'),
+(20, 24, 'trapesium_down_pemuda'),
+(24, 150, '0');
+
+
+-- ==========================================
+-- 5. TABEL DEWASA
+-- Titik trapesium: (20, 42, 43, 65)
+-- ==========================================
+
+CREATE TABLE dewasa (
+    b_bawah DECIMAL(5,2) NOT NULL,
+    b_atas DECIMAL(5,2) NOT NULL,
+    fungsi VARCHAR(100) NOT NULL
+);
+
+INSERT INTO dewasa (b_bawah, b_atas, fungsi)
+VALUES
+(20, 42, 'naik_dewasa'),
+(42, 43, '1'),
+(43, 65, 'trapesium_down_dewasa'),
+(65, 150, '0');
+
+
+-- ==========================================
+-- 6. TABEL LANSIA
+-- Titik trapesium: (60, 69.5, 70.5, 80)
+-- ==========================================
+
+CREATE TABLE lansia (
+    b_bawah DECIMAL(5,2) NOT NULL,
+    b_atas DECIMAL(5,2) NOT NULL,
+    fungsi VARCHAR(100) NOT NULL
+);
+
+INSERT INTO lansia (b_bawah, b_atas, fungsi)
+VALUES
+(60, 69.5, 'naik_lansia'),
+(69.5, 70.5, '1'),
+(70.5, 80, 'trapesium_down_lansia'),
+(80, 150, '0');
+
+
+-- ==========================================
+-- MENAMPILKAN DATA
+-- ==========================================
+
+SELECT * FROM bayi;
+
+SELECT * FROM anak;
+
+SELECT * FROM remaja;
+
+SELECT * FROM pemuda;
+
+SELECT * FROM dewasa;
+
+SELECT * FROM lansia;
