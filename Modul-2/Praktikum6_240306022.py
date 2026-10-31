@@ -1,75 +1,85 @@
+import numpy as np
+
 class FuzzyRule:
-    def __init__(self, rule_id, antecedent, consequent, operator='AND'):
-        self.rule_id = rule_id
-        self.antecedent = antecedent
-        self.consequent = consequent
-        self.operator = operator.upper()
- 
-    def hitung_firing_strength(self, derajat):
-        nilai = [derajat[var].get(lbl, 0.0)
-                 for var, lbl in self.antecedent.items()]
-        if not nilai:
+    def __init__(self, antecedent_labels, consequent_label):
+        self.antecedent_labels = antecedent_labels  # list: [permintaan_label, persediaan_label]
+        self.consequent_label = consequent_label
+        self.firing_strength = 0.0
+
+# ----- Fungsi keanggotaan -----
+def mu_permintaan(x, label):
+    if label == "sedikit":
+        if x <= 120:
+            return 1.0
+        elif 120 < x < 142:
+            return (142 - x) / (142 - 120)
+        else:
             return 0.0
-        if self.operator == 'AND':
-            return min(nilai)
-        elif self.operator == 'OR':
-            return max(nilai)
-        raise ValueError(f"Operator {self.operator} tidak dikenali.")
- 
-    def __str__(self):
-        syarat = f" {self.operator} ".join(
-            f"{v} is {l}" for v, l in self.antecedent.items())
-        hasil = ", ".join(
-            f"{v} is {l}" for v, l in self.consequent.items())
-        return f"[{self.rule_id}] IF {syarat} THEN {hasil}"
- 
- 
-# ===== BASIS ATURAN =====
-def R(id_, perm, stok, prod):
-    return FuzzyRule(id_, {"permintaan": perm, "stok": stok},
-                     {"produksi": prod})
- 
-rule_base = [
-    R("R1", "Rendah", "Sedikit", "Sedang"),
-    R("R2", "Rendah", "Sedang",  "Sedikit"),
-    R("R3", "Rendah", "Banyak",  "Sedikit"),
-    R("R4", "Sedang", "Sedikit", "Banyak"),
-    R("R5", "Sedang", "Sedang",  "Sedang"),
-    R("R6", "Sedang", "Banyak",  "Sedikit"),
-    R("R7", "Tinggi", "Sedikit", "Banyak"),
-    R("R8", "Tinggi", "Sedang",  "Banyak"),
-    R("R9", "Tinggi", "Banyak",  "Sedang"),
+    elif label == "sedang":
+        if x <= 120 or x >= 164:
+            return 0.0
+        elif 120 < x <= 142:
+            return (x - 120) / (142 - 120)
+        else:
+            return (164 - x) / (164 - 142)
+    elif label == "banyak":
+        if x <= 142:
+            return 0.0
+        elif 142 < x < 164:
+            return (x - 142) / (164 - 142)
+        else:
+            return 1.0
+    return 0.0
+
+def mu_persediaan(y, label):
+    if label == "sedikit":
+        if y <= 69:
+            return 1.0
+        elif 69 < y < 79:
+            return (79 - y) / (79 - 69)
+        else:
+            return 0.0
+    elif label == "sedang":
+        if y <= 69 or y >= 88:
+            return 0.0
+        elif 69 < y <= 79:
+            return (y - 69) / (79 - 69)
+        else:
+            return (88 - y) / (88 - 79)
+    elif label == "banyak":
+        if y <= 79:
+            return 0.0
+        elif 79 < y < 88:
+            return (y - 79) / (88 - 79)
+        else:
+            return 1.0
+    return 0.0
+
+def hitung_firing_strength(rule, x, y):
+    m1 = mu_permintaan(x, rule.antecedent_labels[0])
+    m2 = mu_persediaan(y, rule.antecedent_labels[1])
+    return min(m1, m2)   # operator AND = min (Mamdani)
+
+# ----- Bangun Knowledge Base (9 aturan) -----
+rule_list = [
+    FuzzyRule(["sedikit", "sedikit"], "sedikit"),
+    FuzzyRule(["sedikit", "sedang"],  "sedikit"),
+    FuzzyRule(["sedikit", "banyak"],  "sedikit"),
+    FuzzyRule(["sedang",  "sedikit"], "banyak"),
+    FuzzyRule(["sedang",  "sedang"],  "sedang"),
+    FuzzyRule(["sedang",  "banyak"],  "sedang"),
+    FuzzyRule(["banyak",  "sedikit"], "banyak"),
+    FuzzyRule(["banyak",  "sedang"],  "banyak"),
+    FuzzyRule(["banyak",  "banyak"],  "banyak"),
 ]
- 
-# ===== DATA UJI =====
-derajat_input = {
-    "permintaan": {"Rendah": 0.2, "Sedang": 0.8, "Tinggi": 0.0},
-    "stok":       {"Sedikit": 0.0, "Sedang": 0.5, "Banyak": 0.5},
-}
- 
-print("=" * 80)
-print("HASIL EVALUASI BASIS ATURAN - PRODUKSI ROTI")
-print("=" * 80)
- 
-aturan_aktif = []
-for rule in rule_base:
-    alpha = rule.hitung_firing_strength(derajat_input)
-    lbl_out = rule.consequent["produksi"]
-    status = f"AKTIF (alpha = {alpha:.2f})" if alpha > 0 else "NONAKTIF"
-    print(f"{rule} --> {status}")
-    if alpha > 0:
-        aturan_aktif.append((rule.rule_id, lbl_out, alpha))
- 
-print("\n" + "=" * 80)
-print("RINGKASAN ATURAN YANG TERPICU:")
-print("=" * 80)
-for r_id, konklusi, alpha in aturan_aktif:
-    print(f" - {r_id:<4}: Produksi = {konklusi:<8} dengan alpha = {alpha:.2f}")
- 
-# Agregasi (max) per label output
-agregat = {}
-for _, lbl, a in aturan_aktif:
-    agregat[lbl] = max(agregat.get(lbl, 0.0), a)
-print("\nAGREGASI (MAX) PER LABEL OUTPUT:")
-for lbl, a in agregat.items():
-    print(f" - Produksi {lbl:<8}: {a:.2f}")
+
+# ----- Uji sampel dari jurnal: Permintaan=141, Persediaan=71 -----
+if __name__ == "__main__":
+    x_test = 141
+    y_test = 71
+    print(f"Sampel input: Permintaan = {x_test}, Persediaan = {y_test}\n")
+    for i, r in enumerate(rule_list, start=1):
+        fs = hitung_firing_strength(r, x_test, y_test)
+        r.firing_strength = fs
+        print(f"R{i}: IF permintaan {r.antecedent_labels[0]} AND persediaan {r.antecedent_labels[1]} "
+              f"THEN produksi {r.consequent_label} | alpha = {fs:.4f}")
